@@ -1,0 +1,41 @@
+workflows:
+  nightly-build-ios:
+    name: Start
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    working_directory: .
+    environment:
+      xcode: latest
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+
+    scripts:
+      - name: clean em up
+        script: |
+          set -euo pipefail
+          rm -rf FILES/output Test App.ipa Test App.ipa.sha256
+          mkdir -p FILES/output/Payload/rahhhhhh.app
+
+      - name: compiling
+        script: |
+          set -euo pipefail
+          chmod +x FILES/build_ipa.sh
+          bash FILES/build_ipa.sh
+
+      - name: (useless but used to be useful part)
+        script: |
+          set -euo pipefail
+          echo "PWD: $(pwd)"
+          ls -la
+          ls -la FILES || true
+          ls -la FILES/output || true
+
+    artifacts:
+      - Test App.ipa
+      - Test App.sha256
+      - FILES/output/*.ipa
+      - FILES/output/*.sha256
